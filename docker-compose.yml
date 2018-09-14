@@ -25,11 +25,22 @@ services:
     build:
       context: ./
       dockerfile: ./net/grpc/gateway/docker/envoy/Dockerfile
-    image: grpcweb/envoy
+    # Important note, this will create the envoy with jaeger tracing enabled
+    image: grpcweb/envoy:jaeger
     ports:
       - "8080:8080"
+      - "9901:9901"
+    environment: 
+        # Set Envoy tracing level:
+        # default is : "trace" for debugging use: debug
+        - ENVOY_LOG_LEVEL=trace 
+        # Logging by defult is sent to stderr for debugging in console
+        # Enable log file by uncommenting this (will disable logging to console)
+        # - ARG ENVOY_LOG_PATH_PARAM=--log-path
+        # - ARG ENVOY_LOG_PATH=/tmp/envoy_info.log
     links:
       - echo-server
+# temporary disabled since they allways try to startup and fail when opening the port
   # nginx:
   #   build:
   #     context: ./
@@ -59,6 +70,7 @@ services:
     image: grpcweb/commonjs-client
     ports:
       - "8081:8081"
+# temporary disabled since they allways try to startup and fail when opening the port
   # closure-client:
   #   build:
   #     context: ./
@@ -86,3 +98,15 @@ services:
   #   image: grpcweb/binary-client
   #   ports:
   #     - "8081:8081"
+
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    expose:
+      - "9411"
+      - "16686"
+    ports:
+      - "9411:9411"
+      - "16686:16686"

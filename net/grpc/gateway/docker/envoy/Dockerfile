@@ -16,4 +16,4 @@ FROM envoyproxy/envoy:latest
 
 COPY net/grpc/gateway/examples/echo/envoy.yaml /etc/envoy/envoy.yaml
 
-CMD /usr/local/bin/envoy -c /etc/envoy/envoy.yaml -l trace --log-path /tmp/envoy_info.log
+CMD /usr/local/bin/envoy -c /etc/envoy/envoy.yaml --log-level $ENVOY_LOG_LEVEL $ENVOY_LOG_PATH_PARAM $ENVOY_LOG_PATH
